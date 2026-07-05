@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Appointment{% endblock %}
+{% block nav_appointments %}active{% endblock %}
+{% block page_title %}{{ action }} Appointment{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <div class="card-custom">
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <h6 class="text-primary mb-3"><i class="fas fa-calendar-plus me-2"></i>Appointment Details</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3"><label class="form-label">Patient *</label>{{ form.patient }}</div>
+                        <div class="col-md-6 mb-3"><label class="form-label">Doctor *</label>{{ form.doctor }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3"><label class="form-label">Date *</label>{{ form.appointment_date }}</div>
+                        <div class="col-md-4 mb-3"><label class="form-label">Time *</label>{{ form.appointment_time }}</div>
+                        <div class="col-md-4 mb-3"><label class="form-label">Type *</label>{{ form.appointment_type }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3"><label class="form-label">Priority</label>{{ form.priority }}</div>
+                    </div>
+
+                    <hr style="border-color:var(--border)">
+                    <h6 class="text-primary mb-3"><i class="fas fa-clipboard-list me-2"></i>Clinical Information</h6>
+                    <div class="mb-3"><label class="form-label">Reason for Visit *</label>{{ form.reason }}</div>
+                    <div class="mb-3"><label class="form-label">Symptoms</label>{{ form.symptoms }}</div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-calendar-check me-2"></i>{{ action }} Appointment</button>
+                        <a href="{% url 'appointment_list' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

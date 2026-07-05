@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}CareFlow AI Chat{% endblock %}
+{% block nav_ai %}active{% endblock %}
+{% block page_title %}CareFlow AI Chat{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chat-box { height: calc(100vh - 280px); min-height: 400px; overflow-y: auto; }
+    .typing-indicator span {
+        display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+        background: var(--primary); animation: bounce 1.4s infinite ease-in-out;
+    }
+    .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+    .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+        <div class="card-custom">
+            <div class="card-body p-0">
+                <div class="p-3">
+                    <a href="{% url 'ai_chat_new' %}" class="btn btn-primary btn-sm w-100">
+                        <i class="fas fa-plus me-1"></i>New Chat
+                    </a>
+                    <form action="{% url 'ai_delete_all_conversations' %}" method="post" class="mt-2" onsubmit="return confirm('Are you sure you want to delete all conversations?')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                            <i class="fas fa-trash-alt me-1"></i>Clear All
+                        </button>
+                    </form>
+                </div>
+                {% for conv in conversations %}
+                <div class="px-3 py-2 border-top border-secondary">
+                    <a href="{% url 'ai_chat' conv.pk %}" class="text-decoration-none small {% if conversation and conversation.pk == conv.pk %}text-primary fw-bold{% else %}text-secondary{% endif %}">
+                        {{ conv.title|truncatewords:4 }}
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="col-md-9">
+        <div class="card-custom">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="fas fa-robot me-2"></i>
+                    {% if conversation %}{{ conversation.title|truncatewords:8 }}{% else %}New Conversation{% endif %}
+                </span>
+                <div class="d-flex gap-2 align-items-center">
+                    {% if conversation %}
+                    <span class="badge-status st-{{ conversation.category }}">{{ conversation.get_category_display }}</span>
+                    {% endif %}
+                    <form action="{% url 'ai_delete_all_conversations' %}" method="post" onsubmit="return confirm('Are you sure you want to delete all conversations?')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size: 0.7rem;">
+                            <i class="fas fa-trash-alt me-1"></i>Delete All
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Messages -->
+                <div class="chat-box mb-3" id="chatBox">
+                    {% if conversation %}
+                    {% for msg in messages_list %}
+                    <div class="chat-msg {{ msg.role }}">
+                        <div class="role">
+                            {% if msg.role == 'user' %}
+                            <i class="fas fa-user me-1"></i>You
+                            {% else %}
+                            <i class="fas fa-robot me-1"></i>CareFlow AI
+                            {% if msg.tokens_used %}<span class="ms-2" style="font-size:0.6rem">• {{ msg.response_time_ms }}ms • {{ msg.tokens_used }} tokens</span>{% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="small" style="white-space:pre-wrap;">{{ msg.content }}</div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="text-center text-secondary py-5">
+                        <i class="fas fa-robot fa-3x mb-3" style="color:var(--primary)"></i>
+                        <p>Start a conversation with CareFlow AI</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Input -->
+                <form method="post" action="{% if conversation %}{% url 'ai_chat' conversation.pk %}{% else %}{% url 'ai_chat_new' %}{% endif %}">
+                    {% csrf_token %}
+                    {% if not conversation %}
+                    <div class="mb-2">
+                        <select name="category" class="form-select form-select-sm">
+                            <option value="general_health">General Health</option>
+                            <option value="symptom_check">Symptom Check</option>
+                            <option value="drug_interaction">Drug Interaction</option>
+                            <option value="lab_interpretation">Lab Interpretation</option>
+                            <option value="clinical_note">Clinical Note</option>
+                        </select>
+                    </div>
+                    {% endif %}
+                    <div class="d-flex gap-2">
+                        <input type="text" name="message" class="form-control" placeholder="Ask about symptoms, medications, clinical notes..." required autofocus id="chatInput">
+                        <button type="submit" class="btn btn-primary" id="sendBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <input type="hidden" name="category" value="{% if conversation %}{{ conversation.category }}{% else %}general_health{% endif %}">
+                </form>
+                <small class="text-secondary mt-2 d-block">
+                    <i class="fas fa-info-circle me-1"></i>AI responses are for assistance only. Not a replacement for professional medical judgment.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-scroll to bottom
+    const chatBox = document.getElementById('chatBox');
+    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Focus input
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) chatInput.focus();
+
+    // Submit loading state
+    document.querySelector('form').addEventListener('submit', function() {
+        const btn = document.getElementById('sendBtn');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        btn.disabled = true;
+    });
+</script>
+{% endblock %}

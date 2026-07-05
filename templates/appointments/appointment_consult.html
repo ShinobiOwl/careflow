@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Consultation - {{ appointment.appointment_id }}{% endblock %}
+{% block nav_appointments %}active{% endblock %}
+{% block page_title %}Consultation <small class="text-secondary">{{ appointment.appointment_id }}</small>{% endblock %}
+
+{% block content %}
+<div class="card-custom mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <strong class="text-info">{{ appointment.patient.full_name }}</strong>
+                <span class="text-secondary ms-2">{{ appointment.patient.age }}y / {{ appointment.patient.blood_group }}</span>
+                <span class="text-secondary ms-2">→ {{ appointment.doctor.full_name }}</span>
+            </div>
+            <span class="badge-status st-{{ appointment.status }}">{{ appointment.get_status_display }}</span>
+        </div>
+        {% if appointment.patient.chronic_conditions or appointment.patient.allergies %}
+        <div class="mt-2">
+            {% if appointment.patient.chronic_conditions %}
+            <span class="badge bg-warning text-dark me-1"><i class="fas fa-exclamation-triangle me-1"></i>{{ appointment.patient.chronic_conditions }}</span>
+            {% endif %}
+            {% if appointment.patient.allergies %}
+            <span class="badge bg-danger me-1"><i class="fas fa-allergies me-1"></i>Allergies: {{ appointment.patient.allergies }}</span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card-custom">
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <h6 class="text-primary mb-3"><i class="fas fa-stethoscope me-2"></i>Update Consultation</h6>
+                    <div class="row">
+                        <div class="col-md-4 mb-3"><label class="form-label">Status *</label>{{ form.status }}</div>
+                        <div class="col-md-4 mb-3"><label class="form-label">Follow-up Date</label>{{ form.follow_up_date }}</div>
+                    </div>
+                    <div class="mb-3"><label class="form-label">Vital Signs</label>{{ form.vital_signs }}</div>
+                    <div class="mb-3"><label class="form-label">Diagnosis</label>{{ form.diagnosis }}</div>
+                    <div class="mb-3"><label class="form-label">Prescription</label>{{ form.prescription }}</div>
+                    <div class="mb-3"><label class="form-label">Lab Tests Ordered</label>{{ form.lab_tests_ordered }}</div>
+                    <div class="mb-3"><label class="form-label">Notes</label>{{ form.notes }}</div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Save Consultation</button>
+                        <a href="{% url 'appointment_detail' appointment.pk %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

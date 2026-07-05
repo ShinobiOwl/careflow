@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+
+{% block auth_content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card-custom">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-heartbeat fa-3x mb-3" style="color:var(--primary)"></i>
+                        <h3 class="mb-1">CareFlow</h3>
+                        <p class="text-secondary">Hospital Management System</p>
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            {{ form.username }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            {{ form.password }}
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2">
+                            <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                        </button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <small class="text-secondary">New user? <a href="{% url 'register' %}" class="text-info">Register here</a></small>
+                    </div>
+                    <hr style="border-color:var(--border)">
+                    <div class="text-center">
+                        <small class="text-secondary">Demo: <code>admin / Admin@2025</code></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

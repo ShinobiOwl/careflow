@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Patients{% endblock %}
+{% block nav_patients %}active{% endblock %}
+{% block page_title %}Patients <small class="text-secondary">({{ total }})</small>{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+    <div></div>
+    <a href="{% url 'patient_create' %}" class="btn btn-primary"><i class="fas fa-user-plus me-1"></i>Register Patient</a>
+</div>
+
+<div class="card-custom mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-5">
+                <input type="text" name="search" class="form-control" placeholder="Search name, ID, phone, email..." value="{{ search }}">
+            </div>
+            <div class="col-md-2">
+                <select name="gender" class="form-select">
+                    <option value="">All Gender</option>
+                    <option value="Male" {% if gender == 'Male' %}selected{% endif %}>Male</option>
+                    <option value="Female" {% if gender == 'Female' %}selected{% endif %}>Female</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="blood_group" class="form-select">
+                    <option value="">All Blood</option>
+                    {% for bg in page_obj.object_list.0.BLOOD_GROUP_CHOICES %}
+                    <option value="{{ bg.0 }}" {% if blood == bg.0 %}selected{% endif %}>{{ bg.1 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-1"><button type="submit" class="btn btn-outline-primary w-100"><i class="fas fa-search"></i></button></div>
+            <div class="col-md-2"><a href="{% url 'patient_list' %}" class="btn btn-outline-secondary w-100">Reset</a></div>
+        </form>
+    </div>
+</div>
+
+<div class="card-custom">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Age/Sex</th><th>Blood</th><th>City</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for p in page_obj %}
+                    <tr>
+                        <td><code>{{ p.patient_id }}</code></td>
+                        <td><a href="{% url 'patient_detail' p.pk %}" class="text-info text-decoration-none fw-bold">{{ p.full_name }}</a></td>
+                        <td>{{ p.phone }}</td>
+                        <td>{{ p.age }}y / {{ p.gender.0 }}</td>
+                        <td>{{ p.blood_group|default:"-" }}</td>
+                        <td>{{ p.city|default:"-" }}</td>
+                        <td>
+                            <a href="{% url 'patient_detail' p.pk %}" class="btn btn-sm btn-outline-info" title="View"><i class="fas fa-eye"></i></a>
+                            <a href="{% url 'patient_update' p.pk %}" class="btn btn-sm btn-outline-warning" title="Edit"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'patient_delete' p.pk %}" class="btn btn-sm btn-outline-danger" title="Deactivate" onclick="return confirm('Deactivate {{ p.full_name }}?')"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-center text-secondary py-4">No patients found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav class="mt-3"><ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search }}&gender={{ gender }}&blood_group={{ blood }}">«</a></li>{% endif %}
+    {% for num in page_obj.paginator.page_range %}
+    <li class="page-item {% if page_obj.number == num %}active{% endif %}"><a class="page-link" href="?page={{ num }}&search={{ search }}&gender={{ gender }}&blood_group={{ blood }}">{{ num }}</a></li>
+    {% endfor %}
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search }}&gender={{ gender }}&blood_group={{ blood }}">»</a></li>{% endif %}
+</ul></nav>
+{% endif %}
+{% endblock %}

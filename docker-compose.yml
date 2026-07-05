@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: careflow-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: RootPassword@2024
+      MYSQL_DATABASE: careflow_db
+      MYSQL_USER: careflow_user
+      MYSQL_PASSWORD: Careflow@2024!
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - careflow_internal
+
+  # Django Application
+  django:
+    build:
+      context: .
+      dockerfile: docker/Django.Dockerfile
+    container_name: careflow_app
+    restart: unless-stopped
+    environment:
+      - DJANGO_SECRET_KEY=django-insecure-careflow-prod-2024-change-this
+      - DEBUG=True
+      - ALLOWED_HOSTS=careflow.duckdns.org,localhost,127.0.0.1
+      - DB_NAME=careflow_db
+      - DB_USER=careflow_user
+      - DB_PASSWORD=Careflow@2024!
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - OLLAMA_MODEL=gemma4:e2b
+      - FLASK_AI_URL=http://flask-ai:5001
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    networks:
+      - careflow_internal
+      - web_network
+    depends_on:
+      - mysql
+
+  # Flask AI Service
+  flask-ai:
+    build:
+      context: .
+      dockerfile: docker/Flask.Dockerfile
+    container_name: careflow-flask-ai
+    restart: unless-stopped
+    environment:
+      - OLLAMA_URL=http://localgen_brain:11434
+      - OLLAMA_MODEL=gemma4:e2b
+    networks:
+      - careflow_internal
+      - web_network
+    depends_on:
+      - django
+
+volumes:
+  mysql_data:
+  static_volume:
+  media_volume:
+
+networks:
+  careflow_internal:
+    driver: bridge
+  web_network:
+    external: true

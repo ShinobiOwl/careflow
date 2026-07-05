@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Patient{% endblock %}
+{% block nav_patients %}active{% endblock %}
+{% block page_title %}{{ action }} Patient{% endblock %}
+
+{% block content %}
+<div class="card-custom">
+    <div class="card-body p-4">
+        <form method="post">
+            {% csrf_token %}
+            <h6 class="text-primary mb-3"><i class="fas fa-user me-2"></i>Personal Details</h6>
+            <div class="row">
+                <div class="col-md-6 mb-3"><label class="form-label">First Name *</label>{{ form.first_name }}</div>
+                <div class="col-md-6 mb-3"><label class="form-label">Last Name *</label>{{ form.last_name }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3"><label class="form-label">Email</label>{{ form.email }}</div>
+                <div class="col-md-6 mb-3"><label class="form-label">Phone *</label>{{ form.phone }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3"><label class="form-label">Date of Birth *</label>{{ form.date_of_birth }}</div>
+                <div class="col-md-4 mb-3"><label class="form-label">Gender *</label>{{ form.gender }}</div>
+                <div class="col-md-4 mb-3"><label class="form-label">Blood Group</label>{{ form.blood_group }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3"><label class="form-label">Marital Status</label>{{ form.marital_status }}</div>
+                <div class="col-md-8 mb-3"><label class="form-label">Address *</label>{{ form.address }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3"><label class="form-label">City</label>{{ form.city }}</div>
+                <div class="col-md-4 mb-3"><label class="form-label">State</label>{{ form.state }}</div>
+                <div class="col-md-4 mb-3"><label class="form-label">Pincode</label>{{ form.pincode }}</div>
+            </div>
+
+            <hr style="border-color:var(--border)">
+            <h6 class="text-primary mb-3"><i class="fas fa-heartbeat me-2"></i>Medical Details</h6>
+            <div class="row">
+                <div class="col-md-6 mb-3"><label class="form-label">Medical History</label>{{ form.medical_history }}</div>
+                <div class="col-md-6 mb-3"><label class="form-label">Chronic Conditions</label>{{ form.chronic_conditions }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3"><label class="form-label">Allergies</label>{{ form.allergies }}</div>
+                <div class="col-md-6 mb-3"><label class="form-label">Current Medications</label>{{ form.current_medications }}</div>
+            </div>
+
+            <hr style="border-color:var(--border)">
+            <h6 class="text-primary mb-3"><i class="fas fa-phone-alt me-2"></i>Emergency Contact</h6>
+            <div class="row">
+                <div class="col-md-4 mb-3"><label class="form-label">Contact Name</label>{{ form.emergency_contact_name }}</div>
+                <div class="col-md-4 mb-3"><label class="form-label">Contact Phone</label>{{ form.emergency_contact_phone }}</div>
+                <div class="col-md-4 mb-3"><label class="form-label">Relation</label>{{ form.emergency_contact_relation }}</div>
+            </div>
+
+            <hr style="border-color:var(--border)">
+            <h6 class="text-primary mb-3"><i class="fas fa-shield-alt me-2"></i>Insurance</h6>
+            <div class="row">
+                <div class="col-md-6 mb-3"><label class="form-label">Insurance Provider</label>{{ form.insurance_provider }}</div>
+                <div class="col-md-6 mb-3"><label class="form-label">Policy Number</label>{{ form.insurance_policy_number }}</div>
+            </div>
+
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>{{ action }} Patient</button>
+                <a href="{% url 'patient_list' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

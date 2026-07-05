@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %}Appointment {{ appointment.appointment_id }}{% endblock %}
+{% block nav_appointments %}active{% endblock %}
+{% block page_title %}Appointment <small class="text-secondary">{{ appointment.appointment_id }}</small>{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+    <div>
+        <span class="badge-status st-{{ appointment.status }}">{{ appointment.get_status_display }}</span>
+        <span class="badge-status st-{{ appointment.priority }} ms-1">{{ appointment.get_priority_display }}</span>
+        <span class="badge-status st-normal ms-1">{{ appointment.get_appointment_type_display }}</span>
+    </div>
+    <div>
+        {% if appointment.status == 'scheduled' or appointment.status == 'confirmed' %}
+        <a href="{% url 'appointment_status_update' appointment.pk 'confirmed' %}" class="btn btn-success btn-sm"><i class="fas fa-check me-1"></i>Confirm</a>
+        <a href="{% url 'appointment_status_update' appointment.pk 'checked_in' %}" class="btn btn-info btn-sm"><i class="fas fa-door-open me-1"></i>Check In</a>
+        {% endif %}
+        {% if appointment.status == 'checked_in' %}
+        <a href="{% url 'appointment_status_update' appointment.pk 'in_consultation' %}" class="btn btn-primary btn-sm"><i class="fas fa-stethoscope me-1"></i>Start Consultation</a>
+        {% endif %}
+        {% if appointment.status == 'in_consultation' %}
+        <a href="{% url 'appointment_consult' appointment.pk %}" class="btn btn-warning btn-sm"><i class="fas fa-edit me-1"></i>Update Consultation</a>
+        <a href="{% url 'appointment_status_update' appointment.pk 'completed' %}" class="btn btn-success btn-sm"><i class="fas fa-check-double me-1"></i>Complete</a>
+        {% endif %}
+        {% if appointment.status != 'completed' and appointment.status != 'cancelled' %}
+        <a href="{% url 'appointment_cancel' appointment.pk %}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Cancel?')"><i class="fas fa-times me-1"></i>Cancel</a>
+        {% endif %}
+        <a href="{% url 'appointment_list' %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="card-custom mb-4">
+            <div class="card-header"><i class="fas fa-info-circle me-2"></i>Appointment Details</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><span class="text-secondary">Patient:</span>
+                        <a href="{% url 'patient_detail' appointment.patient.pk %}" class="text-info fw-bold">{{ appointment.patient.full_name }}</a></p>
+                        <p><span class="text-secondary">Patient ID:</span> <code>{{ appointment.patient.patient_id }}</code></p>
+                        <p><span class="text-secondary">Patient Phone:</span> {{ appointment.patient.phone }}</p>
+                        <p><span class="text-secondary">Blood Group:</span> {{ appointment.patient.blood_group|default:"N/A" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><span class="text-secondary">Doctor:</span>
+                        <a href="{% url 'doctor_detail' appointment.doctor.pk %}" class="text-info fw-bold">{{ appointment.doctor.full_name }}</a></p>
+                        <p><span class="text-secondary">Specialization:</span> {{ appointment.doctor.specialization }}</p>
+                        <p><span class="text-secondary">Date:</span> <strong>{{ appointment.appointment_date }}</strong></p>
+                        <p><span class="text-secondary">Time:</span> <strong>{{ appointment.appointment_time|time:"H:i" }}</strong></p>
+                    </div>
+                </div>
+                <hr style="border-color:var(--border)">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><span class="text-secondary">Reason:</span> {{ appointment.reason }}</p>
+                        <p><span class="text-secondary">Symptoms:</span> {{ appointment.symptoms|default:"Not specified" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><span class="text-secondary">Type:</span> {{ appointment.get_appointment_type_display }}</p>
+                        <p><span class="text-secondary">Priority:</span> <span class="badge-status st-{{ appointment.priority }}">{{ appointment.get_priority_display }}</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if appointment.vital_signs or appointment.diagnosis %}
+        <div class="card-custom">
+            <div class="card-header"><i class="fas fa-notes-medical me-2"></i>Clinical Notes</div>
+            <div class="card-body">
+                {% if appointment.vital_signs %}
+                <p><strong class="text-secondary">Vital Signs:</strong> {{ appointment.vital_signs }}</p>
+                {% endif %}
+                {% if appointment.diagnosis %}
+                <p><strong class="text-secondary">Diagnosis:</strong> {{ appointment.diagnosis }}</p>
+                {% endif %}
+                {% if appointment.prescription %}
+                <p><strong class="text-secondary">Prescription:</strong></p>
+                <pre style="background:var(--body-bg);padding:12px;border-radius:8px;color:var(--text);border:1px solid var(--border)">{{ appointment.prescription }}</pre>
+                {% endif %}
+                {% if appointment.lab_tests_ordered %}
+                <p><strong class="text-secondary">Lab Tests Ordered:</strong> {{ appointment.lab_tests_ordered }}</p>
+                {% endif %}
+                {% if appointment.notes %}
+                <p><strong class="text-secondary">Notes:</strong> {{ appointment.notes }}</p>
+                {% endif %}
+                {% if appointment.follow_up_date %}
+                <p><strong class="text-secondary">Follow-up Date:</strong> <span class="badge-status st-scheduled">{{ appointment.follow_up_date }}</span></p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4">
+        <!-- Status Timeline -->
+        <div class="card-custom mb-4">
+            <div class="card-header"><i class="fas fa-stream me-2"></i>Status Flow</div>
+            <div class="card-body">
+                {% for st in 'scheduled,confirmed,checked_in,in_consultation,completed' %}
+                <div class="d-flex align-items-center mb-2">
+                    {% if appointment.status == st %}
+                    <i class="fas fa-circle text-primary me-2" style="font-size:0.6rem"></i>
+                    {% elif forloop.counter0 < 5 %}
+                    {% if forloop.last %}
+                    <i class="fas fa-circle text-success me-2" style="font-size:0.6rem"></i>
+                    {% else %}
+                    <i class="fas fa-circle text-secondary me-2" style="font-size:0.4rem"></i>
+                    {% endif %}
+                    {% endif %}
+                    <span class="{% if appointment.status == st %}fw-bold text-primary{% else %}text-secondary{% endif %} small">
+                        {{ st|title }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Quick AI -->
+        <div class="card-custom">
+            <div class="card-header"><i class="fas fa-robot me-2"></i>AI Quick Assist</div>
+            <div class="card-body">
+                <p class="small text-secondary">Ask CareFlow AI about this case</p>
+                <a href="{% url 'ai_chat_new' %}" class="btn btn-outline-info btn-sm w-100">
+                    <i class="fas fa-comment-medical me-1"></i>Open AI Assistant
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

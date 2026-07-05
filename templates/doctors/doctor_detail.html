@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}{{ doctor.full_name }}{% endblock %}
+{% block nav_doctors %}active{% endblock %}
+{% block page_title %}{{ doctor.full_name }} <small class="text-secondary">{{ doctor.doctor_id }}</small>{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+    <div>
+        <span class="badge-status st-{{ doctor.status }}">{{ doctor.get_status_display }}</span>
+        <span class="badge-status st-normal ms-1">{{ doctor.experience_years }} yrs exp</span>
+    </div>
+    <div>
+        <a href="{% url 'doctor_update' doctor.pk %}" class="btn btn-warning btn-sm"><i class="fas fa-edit me-1"></i>Edit</a>
+        <a href="{% url 'doctor_list' %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card-custom mb-4">
+            <div class="card-header"><i class="fas fa-id-card me-2"></i>Doctor Information</div>
+            <div class="card-body">
+                <table class="table table-borderless table-sm mb-0">
+                    <tr><td class="text-secondary" width="35%">Name</td><td class="fw-bold">{{ doctor.full_name }}</td></tr>
+                    <tr><td class="text-secondary">Email</td><td>{{ doctor.email }}</td></tr>
+                    <tr><td class="text-secondary">Phone</td><td>{{ doctor.phone }}</td></tr>
+                    <tr><td class="text-secondary">Gender</td><td>{{ doctor.gender }}</td></tr>
+                    <tr><td class="text-secondary">Department</td><td>{{ doctor.department|default:"-" }}</td></tr>
+                    <tr><td class="text-secondary">Specialization</td><td>{{ doctor.specialization }}</td></tr>
+                    <tr><td class="text-secondary">Qualification</td><td>{{ doctor.qualification }}</td></tr>
+                    <tr><td class="text-secondary">Reg. Number</td><td><code>{{ doctor.medical_registration_number }}</code></td></tr>
+                    <tr><td class="text-secondary">Experience</td><td>{{ doctor.experience_years }} years</td></tr>
+                    <tr><td class="text-secondary">Consultation Fee</td><td class="fw-bold">₹{{ doctor.consultation_fee }}</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card-custom mb-4">
+            <div class="card-header"><i class="fas fa-clock me-2"></i>Availability</div>
+            <div class="card-body">
+                <p><strong class="text-secondary">Available Days:</strong> {{ doctor.available_days }}</p>
+                <p><strong class="text-secondary">Timing:</strong> {{ doctor.start_time|time:"H:i" }} - {{ doctor.end_time|time:"H:i" }}</p>
+                <p><strong class="text-secondary">Max Patients/Day:</strong> {{ doctor.max_patients_per_day }}</p>
+                <p><strong class="text-secondary">Bio:</strong> {{ doctor.bio|default:"No bio available." }}</p>
+            </div>
+        </div>
+        <div class="card-custom">
+            <div class="card-header"><i class="fas fa-chart-bar me-2"></i>Statistics</div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-secondary">Total Patients Seen</span>
+                    <strong>{{ total_patients }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span class="text-secondary">Total Appointments</span>
+                    <strong>{{ appointments.count }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card-custom mt-4">
+    <div class="card-header"><i class="fas fa-calendar me-2"></i>Recent Appointments</div>
+    <div class="card-body p-0">
+        {% if appointments %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead><tr><th>Date</th><th>Patient</th><th>Type</th><th>Reason</th><th>Status</th></tr></thead>
+                <tbody>
+                    {% for a in appointments %}
+                    <tr>
+                        <td>{{ a.appointment_date }}</td>
+                        <td><a href="{% url 'patient_detail' a.patient.pk %}" class="text-info text-decoration-none">{{ a.patient.full_name }}</a></td>
+                        <td><small>{{ a.get_appointment_type_display }}</small></td>
+                        <td>{{ a.reason|truncatewords:5 }}</td>
+                        <td><span class="badge-status st-{{ a.status }}">{{ a.get_status_display }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center text-secondary py-3 mb-0">No appointments yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

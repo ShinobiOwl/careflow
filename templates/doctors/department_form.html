@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Department{% endblock %}
+{% block nav_departments %}active{% endblock %}
+{% block page_title %}{{ action }} Department{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card-custom">
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3"><label class="form-label">Department Name *</label>{{ form.name }}</div>
+                    <div class="mb-3"><label class="form-label">Description</label>{{ form.description }}</div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3"><label class="form-label">Floor Number</label>{{ form.floor_number }}</div>
+                        <div class="col-md-6 mb-3"><label class="form-label">Phone Extension</label>{{ form.phone_extension }}</div>
+                    </div>
+                    <div class="mb-3"><label class="form-label">Head Doctor</label>{{ form.head_doctor }}</div>
+                    <div class="mb-3"><label class="form-label">Is Active</label>{{ form.is_active }}</div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>{{ action }}</button>
+                    <a href="{% url 'department_list' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

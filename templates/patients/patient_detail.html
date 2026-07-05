@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}{{ patient.full_name }}{% endblock %}
+{% block nav_patients %}active{% endblock %}
+{% block page_title %}{{ patient.full_name }} <small class="text-secondary">{{ patient.patient_id }}</small>{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+    <div>
+        <span class="badge-status st-{{ patient.gender.0 }}">{{ patient.get_gender_display }}</span>
+        <span class="badge-status st-active ms-1">{{ patient.age }} years</span>
+        <span class="badge-status st-normal ms-1">{{ patient.blood_group }}</span>
+    </div>
+    <div>
+        <a href="{% url 'patient_update' patient.pk %}" class="btn btn-warning btn-sm"><i class="fas fa-edit me-1"></i>Edit</a>
+        <a href="{% url 'patient_list' %}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>Back</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card-custom mb-4">
+            <div class="card-header"><i class="fas fa-id-card me-2"></i>Personal Information</div>
+            <div class="card-body">
+                <table class="table table-borderless table-sm mb-0">
+                    <tr><td class="text-secondary" width="35%">Full Name</td><td class="fw-bold">{{ patient.full_name }}</td></tr>
+                    <tr><td class="text-secondary">Email</td><td>{{ patient.email|default:"-" }}</td></tr>
+                    <tr><td class="text-secondary">Phone</td><td>{{ patient.phone }}</td></tr>
+                    <tr><td class="text-secondary">Date of Birth</td><td>{{ patient.date_of_birth }} ({{ patient.age }}y)</td></tr>
+                    <tr><td class="text-secondary">Gender</td><td>{{ patient.gender }}</td></tr>
+                    <tr><td class="text-secondary">Blood Group</td><td>{{ patient.blood_group|default:"Not specified" }}</td></tr>
+                    <tr><td class="text-secondary">Marital Status</td><td>{{ patient.marital_status|default:"-" }}</td></tr>
+                    <tr><td class="text-secondary">Address</td><td>{{ patient.address }}<br>{{ patient.city }}, {{ patient.state }} {{ patient.pincode }}</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card-custom mb-4">
+            <div class="card-header"><i class="fas fa-heartbeat me-2"></i>Medical Information</div>
+            <div class="card-body">
+                <p><strong class="text-secondary">Medical History:</strong> {{ patient.medical_history|default:"No records" }}</p>
+                <p><strong class="text-secondary">Chronic Conditions:</strong> {{ patient.chronic_conditions|default:"None" }}</p>
+                <p><strong class="text-secondary">Allergies:</strong> {{ patient.allergies|default:"None known" }}</p>
+                <p><strong class="text-secondary">Current Medications:</strong> {{ patient.current_medications|default:"None" }}</p>
+            </div>
+        </div>
+        <div class="card-custom mb-4">
+            <div class="card-header"><i class="fas fa-phone-alt me-2"></i>Emergency Contact</div>
+            <div class="card-body">
+                <p class="mb-1"><strong>{{ patient.emergency_contact_name|default:"Not specified" }}</strong></p>
+                <small class="text-secondary">{{ patient.emergency_contact_relation|default:"" }} • {{ patient.emergency_contact_phone|default:"" }}</small>
+            </div>
+        </div>
+        <div class="card-custom">
+            <div class="card-header"><i class="fas fa-shield-alt me-2"></i>Insurance</div>
+            <div class="card-body">
+                <p class="mb-1"><strong>{{ patient.insurance_provider|default:"Not specified" }}</strong></p>
+                <small class="text-secondary">Policy: {{ patient.insurance_policy_number|default:"-" }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card-custom mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-calendar me-2"></i>Appointment History ({{ appointment_count }})</span>
+        <a href="{% url 'appointment_create' %}" class="btn btn-sm btn-primary"><i class="fas fa-plus me-1"></i>Book</a>
+    </div>
+    <div class="card-body p-0">
+        {% if appointments %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead><tr><th>Date</th><th>Doctor</th><th>Type</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for a in appointments %}
+                    <tr>
+                        <td>{{ a.appointment_date }}</td>
+                        <td>{{ a.doctor.short_name }}</td>
+                        <td><small>{{ a.get_appointment_type_display }}</small></td>
+                        <td>{{ a.reason|truncatewords:5 }}</td>
+                        <td><span class="badge-status st-{{ a.status }}">{{ a.get_status_display }}</span></td>
+                        <td><a href="{% url 'appointment_detail' a.pk %}" class="btn btn-sm btn-outline-info"><i class="fas fa-eye"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center text-secondary py-3 mb-0">No appointments yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

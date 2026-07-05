@@ -1,0 +1,115 @@
+/* ─── CareFlow Dark Mode Styles ─── */
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #475569; }
+* { scrollbar-width: thin; scrollbar-color: #334155 #0f172a; }
+
+/* Print Styles */
+@media print {
+    .sidebar, .topbar, .btn, .no-print { display: none !important; }
+    .main { margin-left: 0 !important; }
+    body { background: #fff !important; color: #000 !important; }
+    .card-custom, .stat-card { border: 1px solid #ddd; background: #fff !important; }
+    .table { color: #000 !important; }
+}
+
+/* Pulse animation for live indicators */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+.pulse { animation: pulse 2s infinite; }
+
+/* Code blocks */
+code {
+    background: rgba(14,165,233,0.1);
+    color: #38bdf8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+}
+
+/* Prescription block */
+.prescription-block {
+    background: rgba(14,165,233,0.05);
+    border: 1px dashed var(--primary);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'Courier New', monospace;
+}
+
+/* Status dot */
+.status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+.status-dot.healthy { background: #22c55e; }
+.status-dot.warning { background: #eab308; }
+.status-dot.danger { background: #ef4444; }
+
+/* Responsive table card on mobile */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.85rem;
+    }
+}
+
+/* Smooth fade-in for page content */
+.content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Card hover lift */
+.card-custom {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-custom:hover {
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+
+/* Toast notification styling for dark mode */
+.toast-container {
+    z-index: 9999;
+}
+
+/* Links in cards and content */
+a.text-info { color: #38bdf8 !important; }
+a.text-info:hover { color: #7dd3fc !important; }
+
+/* Badge overrides for dark mode */
+.badge.bg-primary { background: var(--primary) !important; }
+.badge.bg-success { background: #22c55e !important; }
+.badge.bg-warning { background: #eab308 !important; color: #000 !important; }
+.badge.bg-danger { background: #ef4444 !important; }
+.badge.bg-info { background: #0ea5e9 !important; }
+.badge.bg-secondary { background: #475569 !important; }
+
+/* Enhanced table row hover for dark mode */
+.table-hover tbody tr {
+    transition: background 0.15s ease;
+}
+
+/* Input focus glow in dark mode */
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 0.2rem rgba(14,165,233,0.25) !important;
+}
+
+/* Pagination active state */
+.page-item.active .page-link {
+    box-shadow: 0 2px 8px rgba(14,165,233,0.3);
+}
+
+/* Alert close button for dark mode */
+.btn-close {
+    filter: invert(0.8) brightness(1.5);
+}

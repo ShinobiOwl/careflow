@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Doctors{% endblock %}
+{% block nav_doctors %}active{% endblock %}
+{% block page_title %}Doctors <small class="text-secondary">({{ total }})</small>{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+    <div></div>
+    <a href="{% url 'doctor_create' %}" class="btn btn-primary"><i class="fas fa-user-md me-1"></i>Add Doctor</a>
+</div>
+
+<div class="card-custom mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-5">
+                <input type="text" name="search" class="form-control" placeholder="Search name, specialization, ID..." value="{{ search }}">
+            </div>
+            <div class="col-md-3">
+                <select name="department" class="form-select">
+                    <option value="">All Departments</option>
+                    {% for d in departments %}
+                    <option value="{{ d.pk }}" {% if dept == d.pk|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="available" {% if status == 'available' %}selected{% endif %}>Available</option>
+                    <option value="on_duty" {% if status == 'on_duty' %}selected{% endif %}>On Duty</option>
+                    <option value="on_leave" {% if status == 'on_leave' %}selected{% endif %}>On Leave</option>
+                    <option value="off_duty" {% if status == 'off_duty' %}selected{% endif %}>Off Duty</option>
+                </select>
+            </div>
+            <div class="col-md-2"><button type="submit" class="btn btn-outline-primary w-100"><i class="fas fa-search me-1"></i>Filter</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="card-custom">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead><tr><th>ID</th><th>Name</th><th>Department</th><th>Specialization</th><th>Exp</th><th>Fee</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for d in page_obj %}
+                    <tr>
+                        <td><code>{{ d.doctor_id }}</code></td>
+                        <td><a href="{% url 'doctor_detail' d.pk %}" class="text-info text-decoration-none fw-bold">{{ d.full_name }}</a></td>
+                        <td>{{ d.department|default:"-" }}</td>
+                        <td>{{ d.specialization }}</td>
+                        <td>{{ d.experience_years }}y</td>
+                        <td>₹{{ d.consultation_fee }}</td>
+                        <td><span class="badge-status st-{{ d.status }}">{{ d.get_status_display }}</span></td>
+                        <td>
+                            <a href="{% url 'doctor_detail' d.pk %}" class="btn btn-sm btn-outline-info"><i class="fas fa-eye"></i></a>
+                            <a href="{% url 'doctor_update' d.pk %}" class="btn btn-sm btn-outline-warning"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'doctor_delete' d.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Deactivate {{ d.full_name }}?')"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="8" class="text-center text-secondary py-4">No doctors found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav class="mt-3"><ul class="pagination justify-content-center">
+    {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search }}&department={{ dept }}&status={{ status }}">«</a></li>{% endif %}
+    {% for num in page_obj.paginator.page_range %}
+    <li class="page-item {% if page_obj.number == num %}active{% endif %}"><a class="page-link" href="?page={{ num }}&search={{ search }}&department={{ dept }}&status={{ status }}">{{ num }}</a></li>
+    {% endfor %}
+    {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search }}&department={{ dept }}&status={{ status }}">»</a></li>{% endif %}
+</ul></nav>
+{% endif %}
+{% endblock %}

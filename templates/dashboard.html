@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Row -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="label">Total Patients</div>
+                    <div class="value">{{ total_patients }}</div>
+                </div>
+                <div class="icon-box" style="background:rgba(14,165,233,0.15);color:#38bdf8;">
+                    <i class="fas fa-user-injured"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="label">Active Doctors</div>
+                    <div class="value">{{ total_doctors }}</div>
+                </div>
+                <div class="icon-box" style="background:rgba(168,85,247,0.15);color:#c084fc;">
+                    <i class="fas fa-user-md"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="label">Today's Appointments</div>
+                    <div class="value">{{ today_appointments }}</div>
+                </div>
+                <div class="icon-box" style="background:rgba(34,197,94,0.15);color:#4ade80;">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="label">Pending</div>
+                    <div class="value">{{ scheduled_count }}</div>
+                </div>
+                <div class="icon-box" style="background:rgba(251,146,60,0.15);color:#fb923c;">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row g-4 mb-4">
+    <div class="col-md-8">
+        <div class="card-custom">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-calendar-alt me-2"></i>Today's Schedule</span>
+                <a href="{% url 'appointment_create' %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus me-1"></i>Book
+                </a>
+            </div>
+            <div class="card-body p-0">
+                {% if today_appointment_list %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead><tr>
+                            <th>Time</th><th>Patient</th><th>Doctor</th><th>Type</th><th>Status</th><th>Priority</th>
+                        </tr></thead>
+                        <tbody>
+                            {% for appt in today_appointment_list %}
+                            <tr>
+                                <td><strong>{{ appt.appointment_time|time:"H:i" }}</strong></td>
+                                <td>
+                                    <a href="{% url 'patient_detail' appt.patient.pk %}" class="text-info text-decoration-none">
+                                        {{ appt.patient.full_name }}
+                                    </a>
+                                </td>
+                                <td>{{ appt.doctor.short_name }}</td>
+                                <td><small>{{ appt.get_appointment_type_display }}</small></td>
+                                <td><span class="badge-status st-{{ appt.status }}">{{ appt.get_status_display }}</span></td>
+                                <td><span class="badge-status st-{{ appt.priority }}">{{ appt.get_priority_display }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center text-secondary py-4 mb-0">No appointments scheduled for today.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Available Doctors -->
+        <div class="card-custom mb-4">
+            <div class="card-header">
+                <i class="fas fa-stethoscope me-2"></i>Doctors On Duty
+            </div>
+            <div class="card-body p-0">
+                {% for doc in available_doctors %}
+                <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom border-secondary">
+                    <div>
+                        <strong class="small">{{ doc.short_name }}</strong>
+                        <br><small class="text-secondary">{{ doc.specialization }}</small>
+                    </div>
+                    <span class="badge-status st-available">Available</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="card-custom">
+            <div class="card-header"><i class="fas fa-bolt me-2"></i>Quick Actions</div>
+            <div class="card-body">
+                <a href="{% url 'patient_create' %}" class="btn btn-outline-primary btn-sm w-100 mb-2">
+                    <i class="fas fa-user-plus me-1"></i>Register Patient
+                </a>
+                <a href="{% url 'appointment_create' %}" class="btn btn-outline-primary btn-sm w-100 mb-2">
+                    <i class="fas fa-calendar-plus me-1"></i>Book Appointment
+                </a>
+                <a href="{% url 'ai_chat_new' %}" class="btn btn-outline-info btn-sm w-100">
+                    <i class="fas fa-robot me-1"></i>Ask CareFlow AI
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Patients & Appointments -->
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card-custom">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-user-injured me-2"></i>Recent Patients</span>
+                <a href="{% url 'patient_list' %}" class="text-info small">View All →</a>
+            </div>
+            <div class="card-body p-0">
+                {% for p in recent_patients %}
+                <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom border-secondary">
+                    <div>
+                        <a href="{% url 'patient_detail' p.pk %}" class="text-decoration-none text-info fw-bold small">{{ p.full_name }}</a>
+                        <br><small class="text-secondary">{{ p.patient_id }} • {{ p.age }}y • {{ p.blood_group }}</small>
+                    </div>
+                    <span class="badge-status st-active">{{ p.get_gender_display }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card-custom">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-clock me-2"></i>Recent Appointments</span>
+                <a href="{% url 'appointment_list' %}" class="text-info small">View All →</a>
+            </div>
+            <div class="card-body p-0">
+                {% for a in recent_appointments %}
+                <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom border-secondary">
+                    <div>
+                        <strong class="small">{{ a.patient.full_name }}</strong>
+                        <small class="text-secondary"> → {{ a.doctor.short_name }}</small>
+                        <br><small class="text-secondary">{{ a.appointment_date }} {{ a.appointment_time|time:"H:i" }}</small>
+                    </div>
+                    <span class="badge-status st-{{ a.status }}">{{ a.get_status_display }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

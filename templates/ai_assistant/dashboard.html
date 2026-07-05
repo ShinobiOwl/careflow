@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}CareFlow AI{% endblock %}
+{% block nav_ai %}active{% endblock %}
+{% block page_title %}CareFlow AI Assistant{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="card-custom">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-robot me-2"></i>Start a Conversation</span>
+                <form action="{% url 'ai_delete_all_conversations' %}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete all conversations?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size: 0.7rem;">
+                        <i class="fas fa-trash-alt me-1"></i>Delete All Conversations
+                    </button>
+                </form>
+            </div>
+            <div class="card-body">
+                <div class="text-center py-5">
+                    <i class="fas fa-brain fa-4x mb-4" style="color:var(--primary)"></i>
+                    <h4>CareFlow AI Assistant</h4>
+                    <p class="text-secondary mb-4">Powered by Ollama Gemma 4 — Ask about symptoms, drug interactions, clinical notes, and more.</p>
+
+                    <form method="post" action="{% url 'ai_chat_new' %}">
+                        {% csrf_token %}
+                        <div class="row justify-content-center">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <select name="category" class="form-select">
+                                        <option value="general_health">General Health Query</option>
+                                        <option value="symptom_check">Symptom Checker</option>
+                                        <option value="drug_interaction">Drug Interaction Check</option>
+                                        <option value="lab_interpretation">Lab Report Interpretation</option>
+                                        <option value="clinical_note">Clinical Note Assistance</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <textarea name="message" class="form-control" rows="3" placeholder="Type your medical query here..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-2"></i>Ask CareFlow AI
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="row g-3 mt-2">
+                    <div class="col-md-4">
+                        <div class="p-3" style="background:var(--body-bg);border-radius:8px;border:1px solid var(--border)">
+                            <i class="fas fa-search text-primary mb-2"></i>
+                            <h6>Symptom Analysis</h6>
+                            <small class="text-secondary">Describe symptoms for AI-assisted differential analysis</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3" style="background:var(--body-bg);border-radius:8px;border:1px solid var(--border)">
+                            <i class="fas fa-pills text-warning mb-2"></i>
+                            <h6>Drug Interactions</h6>
+                            <small class="text-secondary">Check interactions between medications</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3" style="background:var(--body-bg);border-radius:8px;border:1px solid var(--border)">
+                            <i class="fas fa-file-medical text-success mb-2"></i>
+                            <h6>Lab Interpretation</h6>
+                            <small class="text-secondary">Get help understanding lab results</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card-custom">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-bold"><i class="fas fa-history me-2"></i>Recent Conversations</span>
+                <form action="{% url 'ai_delete_all_conversations' %}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete all conversations?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm" style="font-size: 0.75rem; white-space: nowrap;">
+                        <i class="fas fa-trash-alt me-1"></i> Clear All
+                    </button>
+                </form>
+            </div>
+
+            <div class="card-body p-0">
+                {% for conv in conversations %}
+                <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom border-secondary">
+                    <div>
+                        <a href="{% url 'ai_chat' conv.pk %}" class="text-info text-decoration-none small fw-bold">
+                            {{ conv.title|truncatewords:6 }}
+                        </a>
+                        <br><small class="text-secondary">{{ conv.get_category_display }} • {{ conv.updated_at|timesince }} ago</small>
+                    </div>
+                    <a href="{% url 'ai_delete_conversation' conv.pk %}" class="text-secondary" onclick="return confirm('Delete?')"><i class="fas fa-trash small"></i></a>
+                </div>
+                {% empty %}
+                <p class="text-center text-secondary py-4 mb-0">No conversations yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
